@@ -26,6 +26,8 @@ as_maus() { setpriv --reuid=maus --regid=maus --init-groups "$@"; }
 ADMIN_PASSWORD="${OMB_ADMIN_PASSWORD:-}"
 unset OMB_ADMIN_PASSWORD   # never in the server's (and so the bots') environment
 
+as_maus node /etc/omb-railway/clear-leases.mjs
+
 cd /app
 echo "[railway] starting OpenMausBot on 127.0.0.1:${OMB_PORT:-8799} (public: ${OMB_PUBLIC_URL:-unset})"
 as_maus node dist-server/server-launcher.js &

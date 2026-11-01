@@ -22,7 +22,7 @@ ARG ENGINES="@anthropic-ai/claude-code@2.1.316 @openai/codex@0.166.0"
 RUN if [ -n "$ENGINES" ]; then HOME=/tmp/omb-build-home npm install -g $ENGINES && rm -rf /tmp/omb-build-home /tmp/node-compile-cache; fi
 COPY --from=edge /caddy /usr/local/bin/caddy
 COPY railway/Caddyfile /etc/omb-railway/Caddyfile
-COPY railway/pair-gate.mjs /etc/omb-railway/pair-gate.mjs
+COPY railway/pair-gate.mjs railway/clear-leases.mjs /etc/omb-railway/
 COPY railway/start.sh /usr/local/bin/omb-railway-start
 RUN chmod 755 /usr/local/bin/omb-railway-start && chmod 644 /etc/omb-railway/* \
  && caddy validate --config /etc/omb-railway/Caddyfile --adapter caddyfile
