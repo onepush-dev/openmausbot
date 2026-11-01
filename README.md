@@ -2,7 +2,7 @@
 
 OpenMausBot — an open-source AI bot team (Claude Code, Codex and API-key engines) where every bot gets its own browser, files and tools. Deploy on Railway with one click.
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/TEMPLATE_CODE)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/LxzuVp)
 
 This repo packages the official [milind-soni/OpenMausBot](https://github.com/milind-soni/OpenMausBot) server image (`ghcr.io/milind-soni/openmausbot:v0.1.136`, Apache-2.0) for Railway as `ghcr.io/onepush-dev/openmausbot:0.1.136`.
 
