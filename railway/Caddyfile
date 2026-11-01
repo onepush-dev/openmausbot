@@ -9,6 +9,8 @@
 	auto_https off
 	servers {
 		trusted_proxies static 0.0.0.0/0 ::/0
+		# Railway's edge passes the visitor's address as X-Real-IP.
+		client_ip_headers X-Real-IP X-Forwarded-For
 	}
 }
 
@@ -23,11 +25,15 @@
 	# Railway-only: mint a one-time pairing link behind the generated admin
 	# password (OMB_ADMIN_PASSWORD), so no terminal is needed for the first device.
 	handle /_railway/* {
-		reverse_proxy 127.0.0.1:{$OMB_PAIR_GATE_PORT:8801}
+		reverse_proxy 127.0.0.1:{$OMB_PAIR_GATE_PORT:8801} {
+			header_up X-Forwarded-For {client_ip}
+		}
 	}
 
 	handle {
 		reverse_proxy 127.0.0.1:{$OMB_PORT:8799} {
+			# The visitor, not Railway's edge, so the server's pairing lockout is per person.
+			header_up X-Forwarded-For {client_ip}
 			# SSE: stream events as they arrive
 			flush_interval -1
 		}
