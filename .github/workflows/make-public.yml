@@ -1,0 +1,34 @@
+name: Make GHCR public
+on:
+  workflow_dispatch:
+permissions:
+  packages: write
+jobs:
+  public:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set package visibility public
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eux
+          # Org package path first, then user namespace fallback
+          for url in \
+            "https://api.github.com/orgs/onepush-dev/packages/container/openmausbot/visibility" \
+            "https://api.github.com/user/packages/container/openmausbot/visibility"; do
+            code=$(curl -sS -o /tmp/out -w "%{http_code}" -X PUT \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "$url" \
+              -d '{"visibility":"public"}' || true)
+            echo "PUT $url -> $code"
+            cat /tmp/out || true
+            echo
+            if [ "$code" = "204" ] || [ "$code" = "200" ]; then
+              echo "Package is public"
+              exit 0
+            fi
+          done
+          echo "Failed to set visibility" >&2
+          exit 1

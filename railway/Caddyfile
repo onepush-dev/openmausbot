@@ -1,0 +1,35 @@
+# Edge for OpenMausBot on Railway. Railway terminates TLS and forwards to this
+# Caddy on $PORT; Caddy keeps Railway's X-Forwarded-Proto (https) so the
+# server's same-origin rule and Secure cookies work, and always sends
+# X-Forwarded-For, so the server treats every request as remote: it needs a
+# paired session (or answers only /api/health, /api/brand and the /pair page).
+{
+	admin off
+	persist_config off
+	auto_https off
+	servers {
+		trusted_proxies static 0.0.0.0/0 ::/0
+	}
+}
+
+:{$PORT:8080} {
+	encode zstd gzip
+
+	# Webhook ingress has its own per-hook secrets, like upstream's Caddyfile.
+	handle /hooks/* {
+		reverse_proxy 127.0.0.1:{$OMB_WEBHOOK_PORT:8800}
+	}
+
+	# Railway-only: mint a one-time pairing link behind the generated admin
+	# password (OMB_ADMIN_PASSWORD), so no terminal is needed for the first device.
+	handle /_railway/* {
+		reverse_proxy 127.0.0.1:{$OMB_PAIR_GATE_PORT:8801}
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:{$OMB_PORT:8799} {
+			# SSE: stream events as they arrive
+			flush_interval -1
+		}
+	}
+}
