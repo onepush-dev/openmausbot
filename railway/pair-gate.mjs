@@ -66,7 +66,8 @@ const server = http.createServer(async (req, res) => {
     const r = await fetch(`http://127.0.0.1:${OMB_PORT}/api/auth/pairing`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ label: url.searchParams.get("label") || "Railway browser", scopes: ["admin"] }),
+      // No scopes: the server default, the same full-access code `openmausbot pair` mints.
+      body: JSON.stringify({ label: url.searchParams.get("label") || "Railway browser" }),
       signal: AbortSignal.timeout(10000),
     });
     const body = await r.json().catch(() => ({}));
